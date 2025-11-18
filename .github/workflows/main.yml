@@ -6,37 +6,46 @@ on:
   workflow_dispatch:
   schedule:
     -cron : 30 02 * * *  
-    -cron : 00 14 * * *
+   
 
     jobs:
       run-postman-tests:
         runs-on: ubuntu-latest
 
           steps:
-            -name:checkout the code
+            -name: checkout the code
              uses: actions/checkout@v4.3.1
 
-            -name:Install Nodejs Environment
+            -name: Install Nodejs Environment
              uses: actions/setup-node@v6.0.0
              with:
                node-version:22
 
             -name: Install newman and html extra globally
-              run:npm install -g newman && newman-reporter-htmlextra
+             run: npm install -g newman && newman-reporter-htmlextra
 
 
-            -name: Run postman collection with newman
-              run: | 
+            -name : Run postman collection with newman
+             run: | 
                    newman run 'Inwarranty-flow Collection_new.postman_collection.json' \
                    -e QA.postman_environment.json \
                    -d testdata.csv \
                    -r cli,htmlextra
 
-            -name: Newman Report
-              uses: actions/upload-artifact@v5.0.0
+            -name : Newman Report
+             if:always()
+             uses: actions/upload-artifact@v5.0.0
               with:
                 name: Newman Report
                 path: newman/*.html
+
+            -name : Creating github page branch
+             if: always()
+             uses: peaceiris/actions-gh-pages@v4.0.0
+             with:  
+              github_token: ${{ secrets.GITHUB_TOKEN }}
+              publish_dir: newman/
+            
       
     
   
